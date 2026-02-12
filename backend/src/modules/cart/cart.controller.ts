@@ -19,7 +19,6 @@ export class CartController {
     @Roles(['customer'])
     @ApiBearerAuth()
     @ApiHeader({name: 'x-user-id', required: true,})
-    @ApiOperation({ summary: 'Get Cart Items' })
     // @ApiCreatedResponse({ type: [], isArray: true })
     getCart(@CurrentUser('x-user-id') userId: string,@Session() session: Record<string, any>) {
         const userCart = session.carts?.[userId] || [];
@@ -237,5 +236,5 @@ export class CartController {
         return { success: false, message: 'Product not found in cart' };
     }
 
-    
+
 }

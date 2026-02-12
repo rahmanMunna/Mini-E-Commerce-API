@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { ProductService } from "./product.service";
-import { ApiBearerAuth, ApiCreatedResponse, ApiHeader, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiCreatedResponse, ApiHeader, ApiTags } from "@nestjs/swagger";
 import { Product } from "src/entities/product.entity";
 import { AuthGuard } from "src/guards/auth.guard";
 import { Roles } from "src/decorators/role.decorator";
@@ -17,7 +17,7 @@ export class ProductController {
 
     constructor(private readonly productService: ProductService) { }
 
-    @Post('add')
+    @Post()
     @UseGuards(AuthGuard,RolesGuard)
     @Roles(['admin'])
     @ApiHeader({name: 'x-user-id', required: true,})
@@ -31,7 +31,6 @@ export class ProductController {
     @UseGuards(AuthGuard,RolesGuard)
     @Roles(['admin','customer'])
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Get all Products' })
     @ApiCreatedResponse({ type: Product, isArray: true })
     getAllProducts(): Promise<Product[]> {
         return this.productService.getAllProducts();
