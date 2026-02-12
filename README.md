@@ -35,3 +35,4 @@ npm run start:dev
 ```
 http://localhost:3000/api/v1
 ```
+- ERD added to the backend directory
