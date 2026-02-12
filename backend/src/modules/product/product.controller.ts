@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
-
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { ProductService } from "./product.service";
 import { ApiBearerAuth, ApiCreatedResponse, ApiHeader, ApiTags } from "@nestjs/swagger";
@@ -18,6 +17,7 @@ export class ProductController {
     constructor(private readonly productService: ProductService) { }
 
     @Post()
+    @UsePipes(new ValidationPipe)
     @UseGuards(AuthGuard,RolesGuard)
     @Roles(['admin'])
     @ApiHeader({name: 'x-user-id', required: true,})

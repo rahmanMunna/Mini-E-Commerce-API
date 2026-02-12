@@ -4,7 +4,7 @@
 /* eslint-disable prettier/prettier */
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Request, Session, UseGuards } from '@nestjs/common';
 import { CartDto } from './dto/add-to-cart.dto';
-import { ApiBearerAuth, ApiCreatedResponse, ApiHeader, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCreatedResponse, ApiHeader } from '@nestjs/swagger';
 import { CartItem } from 'src/interfaces/cart.interface';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import { AuthGuard } from 'src/guards/auth.guard';

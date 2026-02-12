@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import { Category } from 'src/entities/category.entity';
@@ -15,6 +15,7 @@ export class CategoryController {
 
     @Post('add')
     @Roles(['admin'])
+    @UsePipes(new ValidationPipe)
     @UseGuards(AuthGuard,RolesGuard)   
     @ApiBearerAuth()
     @ApiCreatedResponse({ type: Category })
