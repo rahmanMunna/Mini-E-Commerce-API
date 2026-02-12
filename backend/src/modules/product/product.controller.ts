@@ -1,10 +1,15 @@
 /* eslint-disable prettier/prettier */
 
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UseGuards } from "@nestjs/common";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { ProductService } from "./product.service";
-import { ApiCreatedResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiCreatedResponse, ApiHeader, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Product } from "src/entities/product.entity";
+import { AuthGuard } from "src/guards/auth.guard";
+import { Roles } from "src/decorators/role.decorator";
+import { RolesGuard } from "src/guards/role.guard";
+import { ProductDto } from "src/modules/product/dto/product.dto";
+
 
 @ApiTags('product')
 @Controller('products')
@@ -13,16 +18,49 @@ export class ProductController {
     constructor(private readonly productService: ProductService) { }
 
     @Post('add')
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['admin'])
+    @ApiHeader({name: 'x-user-id', required: true,})
+    @ApiBearerAuth()
     @ApiCreatedResponse({ type: Product })
     async createProduct(@Body() dto: CreateProductDto): Promise<Product> {
         return await this.productService.createProduct(dto);
     }
 
     @Get()
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['admin','customer'])
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Get all Products' })
     @ApiCreatedResponse({ type: Product, isArray: true })
     getAllProducts(): Promise<Product[]> {
         return this.productService.getAllProducts();
+    }
+
+    @Get(':id')
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['admin','customer'])
+    @ApiBearerAuth()
+    @ApiCreatedResponse({ type: Product })
+    getProductById(@Param('id') id: number): Promise<Product> {
+        return this.productService.getProductById(id);
+    }
+
+    @Put(':id')
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['admin'])
+    @ApiBearerAuth()
+    @ApiCreatedResponse({ type: Product })
+    updateProduct(@Param('id') id: number, @Body() dto: ProductDto): Promise<Product> {
+        return this.productService.updateProduct(id, dto);
+    }
+
+    @Delete(':id')
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['admin'])
+    @ApiBearerAuth()
+    deleteProduct(@Param('id') id: number): Promise<{success: boolean, message: string}> {
+        return this.productService.deleteProduct(id);
     }
 
 }

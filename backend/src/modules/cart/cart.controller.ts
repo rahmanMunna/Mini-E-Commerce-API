@@ -2,16 +2,22 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Request, Session } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Request, Session, UseGuards } from '@nestjs/common';
 import { CartDto } from './dto/add-to-cart.dto';
-import { ApiCreatedResponse, ApiHeader, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiCreatedResponse, ApiHeader, ApiOperation } from '@nestjs/swagger';
 import { CartItem } from 'src/interfaces/cart.interface';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { Roles } from 'src/decorators/role.decorator';
+import { RolesGuard } from 'src/guards/role.guard';
 
 @Controller('cart')
 export class CartController {
 
     @Get()
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['customer'])
+    @ApiBearerAuth()
     @ApiHeader({name: 'x-user-id', required: true,})
     @ApiOperation({ summary: 'Get Cart Items' })
     // @ApiCreatedResponse({ type: [], isArray: true })
@@ -25,6 +31,9 @@ export class CartController {
     }
 
     @Post()
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['customer'])
+    @ApiBearerAuth()
     @ApiHeader({name: 'x-user-id', required: true,})
     @ApiCreatedResponse({ type: String })
     addToCart(
@@ -71,6 +80,9 @@ export class CartController {
 }
 
     @Patch('update')
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['customer'])
+    @ApiBearerAuth()
     @ApiHeader({name: 'x-user-id', required: true,})
     @ApiCreatedResponse({ type: String })
     updateCartItem(
@@ -113,6 +125,9 @@ export class CartController {
 }
 
     @Patch('increase/:pId')
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['customer'])
+    @ApiBearerAuth()
     @ApiHeader({name: 'x-user-id', required: true,})
     @ApiCreatedResponse({ type: String })
     increaseCartItemQty(
@@ -144,6 +159,9 @@ export class CartController {
 }
 
     @Patch('decrease/:pId')
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['customer'])
+    @ApiBearerAuth()
     @ApiHeader({name: 'x-user-id', required: true,})
     @ApiCreatedResponse({ type: String })
     decreaseCartItemQty(
@@ -184,4 +202,40 @@ export class CartController {
     
     return { success: false, message: 'Product not found in cart' };
     }
+
+    @Delete(':pId')
+    @UseGuards(AuthGuard,RolesGuard)
+    @Roles(['customer'])
+    @ApiBearerAuth()
+    @ApiHeader({name: 'x-user-id', required: true,})
+    @ApiCreatedResponse({ type: String })
+    deleteCartItem(
+        @Param('pId', ParseIntPipe) productId: number,
+        @CurrentUser('x-user-id') userId: string,
+        @Session() session: Record<string, any>,
+    ) {
+        // Check if user has a cart
+        if (!session.carts?.[userId]) {
+            return { success: false, message: 'Cart is empty' };
+        }
+        
+        const userCart = session.carts[userId];
+        const existingItemIndex = userCart.findIndex(
+            (cartItem: CartItem) => cartItem.productId === productId
+        );
+
+        if (existingItemIndex > -1) {
+            // Remove item from cart
+            userCart.splice(existingItemIndex, 1);
+            return { 
+                success: true, 
+                message: 'Product removed from cart',
+                cart: userCart 
+            };
+        }
+        
+        return { success: false, message: 'Product not found in cart' };
+    }
+
+    
 }

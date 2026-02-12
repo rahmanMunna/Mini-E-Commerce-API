@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from "typeorm";
 import { CreateAdminDto, CreateCustomerDto, LoginDto } from "./dto";
 import { JwtService } from "@nestjs/jwt";
+import { IPayload } from "src/interfaces/payload.interface";
 
 
 @Injectable()
@@ -119,7 +120,7 @@ export class AuthService {
     }
     
     // Generate JWT token
-    const payload = { 
+    const payload : IPayload = { 
         sub: user.userId, 
         email: user.email, 
         role: user.role 
